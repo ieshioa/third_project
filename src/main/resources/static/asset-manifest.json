@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/static/css/main.95643fed.css",
+    "main.js": "/static/js/main.6a3f4758.js",
+    "static/media/notfound-onlyimg.gif": "/static/media/notfound-onlyimg.61bfb132b90e656821a1.gif",
+    "static/media/main-big.gif": "/static/media/main-big.aa1e59a92d64948ed706.gif",
+    "static/media/thumbnail_map.png": "/static/media/thumbnail_map.4d2f70caf9f358f48d0c.png",
+    "static/media/main-list-3.png": "/static/media/main-list-3.26af75613d89d75bcd71.png",
+    "static/media/main-list-1.png": "/static/media/main-list-1.287bfe5d6ec2f7f448ff.png",
+    "static/media/Ellipsis@1x-1.5s-200px-200px.gif": "/static/media/Ellipsis@1x-1.5s-200px-200px.cd8e1b98d51e6c3a534a.gif",
+    "static/media/default-img.png": "/static/media/default-img.616d2ed1a034b60cda8f.png",
+    "static/media/glampick_logo.png": "/static/media/glampick_logo.f70d90dd698da7580ebd.png",
+    "static/media/glampick_logo_white.png": "/static/media/glampick_logo_white.4e29ad08015b7e625d26.png",
+    "static/media/notbookingImg.png": "/static/media/notbookingImg.6b08576016913bba9658.png",
+    "static/media/notfound-logo.png": "/static/media/notfound-logo.c4c5623fcf8bb3145b46.png",
+    "index.html": "/index.html",
+    "main.95643fed.css.map": "/static/css/main.95643fed.css.map",
+    "main.6a3f4758.js.map": "/static/js/main.6a3f4758.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.95643fed.css",
+    "static/js/main.6a3f4758.js"
+  ]
+}

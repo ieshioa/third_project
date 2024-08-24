@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.glampick.mapper.OwnerMapper">
+
+<!-- 민지 ================================================= -->
+    <insert id="insertGlamping" useGeneratedKeys="true" keyProperty="glampId">
+        INSERT INTO glamping
+        SET user_id = #{userId}
+            , glamp_name = #{glampName}
+            , glamp_location = #{glampLocation}
+            , region = #{region}
+            , extra_charge = #{extraCharge}
+            , glamp_intro = #{intro}
+            , info_basic = #{basic}
+            , info_notice = #{notice}
+            , traffic = #{traffic}
+            , glamp_image = #{glampingImg}
+    </insert>
+
+    <update id="updateGlampingImageNameToUrl">
+        UPDATE glamping
+        SET glamp_image = #{pic}
+        WHERE glamp_id = #{glampId}
+    </update>
+
+    <insert id="insertRoom" keyProperty="roomId" useGeneratedKeys="true">
+        INSERT INTO room
+        SET glamp_id = #{glampId}
+            , room_name = #{roomName}
+            , room_price = #{price}
+            , room_num_people = #{peopleNum}
+            , room_max_people = #{peopleMax}
+            , check_in_time = #{inTime}
+            , check_out_time = #{outTime}
+    </insert>
+
+    <insert id="insertRoomImg">
+        INSERT INTO room_image
+        ( room_id, room_image_name )
+        VALUES
+        <foreach collection="roomImgName" item="img" separator=",">
+            ( #{roomId}, #{img} )
+        </foreach>
+    </insert>
+
+    <insert id="insertRoomService">
+        INSERT INTO room_service
+        ( room_id, service_id )
+        VALUES
+        <foreach collection="service" item="item" separator=",">
+            ( #{roomId}, #{item} )
+        </foreach>
+    </insert>
+
+    <select id="hasGlamping">
+        SELECT glamp_id
+        FROM glamping
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="existingLocation">
+        SELECT glamp_id
+        FROM glamping
+        WHERE glamp_location = #{location}
+    </select>
+
+    <update id="updateGlampingInfo">
+        UPDATE glamping
+        SET  glamp_name = #{glampName}
+            , glamp_location = #{glampLocation}
+            , region = #{region}
+            , extra_charge = #{extraCharge}
+            , glamp_intro = #{intro}
+            , info_basic = #{basic}
+            , info_parking = #{parking}
+            , info_notice = #{notice}
+        WHERE glamp_id = #{glampId}
+        AND user_id = #{userId}
+    </update>
+
+    <update id="updateRoomInfo">
+        UPDATE room
+        SET glamp_id = #{glampId}
+            , room_name = #{roomName}
+            , room_price = #{price}
+            , room_num_people = #{peopleNum}
+            , room_max_people = #{peopleMax}
+            , check_in_time = #{inTime}
+            , check_out_time = #{outTime}
+    </update>
+
+    <select id="selService">
+        SELECT service_id
+        FROM room_service
+        WHERE room_id = #{roomId}
+    </select>
+
+    <delete id="delService">
+        DELETE FROM room_service
+        WHERE room_id = #{roomId}
+    </delete>
+
+    <select id="getBookBefore">
+        SELECT A.reservation_id AS reservationId
+            , book_id AS bookId
+            , A.created_at AS bookDate
+            , C.room_name AS roomName
+            , A.input_name AS name
+            , B.user_phone AS phoneNum
+            , A.personnel AS peopleNum
+            , A.check_in_date AS inDate
+            , A.check_out_date AS outDate
+            , A.pay_amount AS totalPrice
+        FROM reservation_before A
+        JOIN user B
+        ON A.user_id = B.user_id
+        JOIN room C
+        ON A.room_id = C.room_id
+        WHERE A.glamp_id = #{glampId}
+        ORDER BY A.check_in_date
+    </select>
+
+    <select id="getBookComplete">
+        SELECT A.reservation_id AS reservationId
+            , book_id AS bookId
+            , A.created_at AS bookDate
+            , C.room_name AS roomName
+            , A.input_name AS name
+            , B.user_phone AS phoneNum
+            , A.personnel AS peopleNum
+            , A.check_in_date AS inDate
+            , A.check_out_date AS outDate
+            , A.pay_amount AS totalPrice
+        FROM reservation_complete A
+        JOIN user B
+        ON A.user_id = B.user_id
+        JOIN room C
+        ON A.room_id = C.room_id
+        WHERE A.glamp_id = #{glampId}
+        ORDER BY A.check_in_date DESC
+    </select>
+
+    <select id="getBookCancel">
+        SELECT A.reservation_id AS reservationId
+            , book_id AS bookId
+            , A.created_at AS bookDate
+            , C.room_name AS roomName
+            , A.input_name AS name
+            , B.user_phone AS phoneNum
+            , A.personnel AS peopleNum
+            , A.check_in_date AS inDate
+            , A.check_out_date AS outDate
+            , A.pay_amount AS totalPrice
+            , A.comment AS comment
+        FROM reservation_cancel A
+        JOIN user B
+        ON A.user_id = B.user_id
+        JOIN room C
+        ON A.room_id = C.room_id
+        WHERE A.glamp_id = #{glampId}
+        ORDER BY A.reservation_id DESC
+    </select>
+
+    <select id="getUserIdByGlampId">
+        SELECT user_id
+        FROM glamping
+        WHERE glamp_id = #{glampId}
+    </select>
+
+<!-- 강국 ================================================= -->
+
+
+
+</mapper>

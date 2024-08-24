@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.glampick.mapper.JsonInputMapper">
+    <select id="selGlamp">
+        select glamp_id
+        FROM glamping
+        WHERE glamp_name = #{glampName}
+    </select>
+
+    <insert id="insRoomData">
+        INSERT INTO room(glamp_id, room_name, room_price, room_num_people, room_max_people, check_in_time, check_out_time)
+        VALUES (#{glampId},#{name},#{price},#{numPeople},#{maxPeople},#{checkIn},#{checkOut})
+    </insert>
+
+    <insert id="insertRoomImg">
+        INSERT INTO room_image
+        ( room_id, room_image_name )
+        VALUES
+        <foreach collection="roomImgName" item="img" separator=",">
+            ( #{roomId}, #{img} )
+        </foreach>
+    </insert>
+    <select id="getRoomId">
+        SELECT	    A.room_id AS roomId
+        FROM		room A
+        WHERE		A.room_name = #{roomName};
+    </select>
+    <select id="getRoomName">
+        SELECT	    A.room_name AS name
+        FROM		room A
+        ORDER BY    A.glamp_id
+    </select>
+
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.glampick.mapper.MainMapper">
+
+    <select id="popular">
+        SELECT A.glamp_id AS glampId
+            , A.glamp_name AS glampingName
+            , A.region
+            , A.star_point_avg AS starPoint
+            , A.review_count AS reviewCount
+            , A.glamp_image AS glampingImg
+        FROM glamping A
+        WHERE A.activate_status = 1
+        ORDER BY recommend_score DESC
+        LIMIT 3
+    </select>
+
+    <select id="petFriendly">
+        SELECT  A.glamp_id AS glampId
+                , A.glamp_name AS glampingName
+                , A.region
+                , A.star_point_avg AS starPoint
+                , A.review_count AS reviewCount
+                , A.glamp_image AS glampingImg
+        FROM glamping A
+        JOIN (
+                SELECT A.glamp_id
+                FROM room A
+                JOIN room_service B ON A.room_id = B.room_id
+                WHERE B.service_id IN (4)
+                GROUP BY A.glamp_id
+        ) B
+        ON A.glamp_id = B.glamp_id
+        WHERE A.activate_status = 1
+        ORDER BY recommend_score DESC
+        LIMIT 3
+    </select>
+
+    <select id="mountainView">
+        SELECT  A.glamp_id AS glampId
+            , A.glamp_name AS glampingName
+            , A.region
+            , A.star_point_avg AS starPoint
+            , A.review_count AS reviewCount
+            , A.glamp_image AS glampingImg
+        FROM glamping A
+        JOIN (
+            SELECT A.glamp_id
+            FROM room A
+            JOIN room_service B ON A.room_id = B.room_id
+            WHERE B.service_id IN (3)
+            GROUP BY A.glamp_id
+        ) B
+        ON A.glamp_id = B.glamp_id
+        WHERE A.activate_status = 1
+        ORDER BY recommend_score DESC
+        LIMIT 3
+    </select>
+
+
+</mapper>

@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.glampick.mapper.GlampingMapper">
+
+    <!--  강국 ===================================================================  -->
+
+    <!-- 글램핑 관심 등록-->
+    <insert id="insertFavorite">
+        INSERT INTO glamp_favorite (user_id, glamp_id)
+        VALUES (#{userId},#{glampId})
+    </insert>
+    <!-- 글램핑 관심 취소-->
+    <delete id="deleteFavorite">
+        DELETE FROM glamp_favorite WHERE user_id = #{userId} AND glamp_id = #{glampId}
+    </delete>
+    <select id="getIsFavData">
+        SELECT  A.user_id
+        FROM       glamp_favorite A
+        WHERE   A.user_id = #{userId} AND A.glamp_id = #{glampId}
+    </select>
+    <!-- 글램핑 상세 페이지 글램핑 정보 -->
+    <select id="selGlampingInfo">
+        SELECT      glamp_id AS glampId,
+                    glamp_image AS glampImage,
+                    glamp_name AS glampName,
+                    star_point_avg AS starPointAvg,
+                    glamp_location AS glampLocation,
+                    glamp_intro AS glampIntro,
+                    info_basic AS infoBasic,
+                    traffic AS traffic,
+                    info_notice AS infoNotice,
+                    activate_status AS activateStatus
+        FROM        glamping
+        WHERE       glamp_id = #{glampId}
+    </select>
+    <!-- 객실 정보  -->
+    <select id="selRoomInfo">
+        SELECT 		A.glamp_id,
+                    A.room_name AS roomName,
+                    <choose>
+                        <when test="priceType == 1">
+                            C.weekday_price AS roomPrice,
+                        </when>
+                        <when test="priceType == 2">
+                            C.weekend_price AS roomPrice,
+                        </when>
+                        <when test="priceType == 3">
+                            C.peak_weekday_price AS roomPrice,
+                        </when>
+                        <when test="priceType == 4">
+                            C.peak_weekend_price AS roomPrice,
+                        </when>
+                    </choose>
+                    A.room_id AS roomId,
+                    A.room_num_people AS roomNumPeople,
+                    A.room_max_people AS roomMaxPeople,
+                    A.check_in_time AS checkInTime,
+                    A.check_out_time AS checkOutTime,
+                    B.room_image_name AS pic,
+                    D.extra_charge AS extraCharge
+        FROM  		room A
+        INNER JOIN	room_image B
+        ON 			A.room_id = B.room_id
+        INNER JOIN  room_price C
+        ON			A.room_id = C.room_id
+        INNER JOIN	glamping D
+        ON			A.glamp_id = D.glamp_id
+        GROUP BY 	A.room_id
+        HAVING 		A.glamp_id = #{glampId}
+    </select>
+    <!-- 체크인 체크아웃 데이트 추출 -->
+    <select id="selDate">
+        SELECT      glamp_id AS glampId, room_id AS roomId ,check_in_date AS checkInDate,check_out_date AS checkOutDate
+        FROM       reservation_before
+        WHERE      glamp_id = #{glampId} AND room_id = #{roomId};
+    </select>
+    <!-- 객실 사진 -->
+    <select id="selRoomPics">
+        SELECT          room_image_name AS room
+        FROM          room_image
+        WHERE           room_id = #{roomId}
+    </select>
+    <!-- 글램핑의 객실 모든 이름 -->
+    <select id="selRoomNames">
+        SELECT      room_id AS roomId,
+        room_name AS roomName
+        FROM       room
+        WHERE       glamp_id = #{glampId}
+    </select>
+    <!-- 객실이름과 매핑되는 이미지 -->
+    <select id="selRoomNameAndImages">
+        SELECT         B.roomId AS roomId, B.roomName AS roomName, A.room_image_name AS roomImages
+        FROM          room_image A
+        INNER JOIN
+        (SELECT         room_id AS roomId,
+        room_name AS roomName
+        FROM          room
+        WHERE           glamp_id = #{glampId}) B
+        ON            A.room_id = B.roomId
+        ORDER BY        roomId
+    </select>
+    <!-- 글램핑 상세 페이지 리뷰 데이터 -->
+    <select id="selReviewInfoInGlamping">
+        SELECT         B.user_nickname AS userNickName,
+        A.review_content AS content
+        FROM          review A
+        INNER JOIN      user B
+        ON            A.user_id = B.user_id
+        WHERE          glamp_id = #{glampId}
+        ORDER BY       A.created_at DESC
+        LIMIT           7;
+    </select>
+    <!-- 리뷰 유저수 -->
+    <select id="selCount">
+        SELECT COUNT(review_id) AS countReviewUsers
+        FROM review
+        WHERE glamp_id = #{glampId};
+    </select>
+    <!-- 리뷰페이지 리뷰정보  -->
+    <select id="selReviewInfo">
+        SELECT              D.room_name AS roomName,
+        A.review_id AS reviewId,
+        A.glamp_id AS glampId,
+        B.user_profile_image AS userProfileImage,
+        B.user_nickname AS userNickName,
+        A.review_star_point AS starPoint,
+        A.created_at AS createdAt,
+        A.review_content AS userReviewContent,
+        A.review_comment AS ownerReviewContent
+        FROM             review A
+        INNER JOIN         user B
+        ON                  A.user_id = B.user_id
+        INNER JOIN         reservation_complete C
+        ON               A.reservation_id = C.reservation_id
+        INNER JOIN         room D
+        ON              C.room_id = D.room_id
+        WHERE             A.glamp_id = #{glampId}
+        ORDER BY           A.created_at DESC
+        LIMIT               #{startIdx}, #{size}
+    </select>
+    <!-- 썸네일 리뷰이미지 -->
+    <select id="thumbnailReviewImage">
+        SELECT         A.review_image_name
+        FROM          review_image A
+        INNER JOIN      review B
+        ON            A.review_id = B.review_id
+        WHERE          glamp_id = #{glampId}
+        LIMIT           9
+    </select>
+    <!-- 리뷰이미지 -->
+    <select id="allReviewImages">
+        SELECT         A.review_image_name
+        FROM          review_image A
+        INNER JOIN      review B
+        ON            A.review_id = B.review_id
+        WHERE          glamp_id = #{glampId}
+        LIMIT           #{startIdx}, #{size}
+    </select>
+
+    <!-- 유저별 리뷰 이미지 -->
+    <select id="selReviewImage">
+        SELECT      review_image_name
+        FROM       review_image
+        WHERE       review_id = #{reviewId}
+    </select>
+    <!-- 룸서비스 -->
+    <select id="selRoomService">
+        SELECT      service_title
+        FROM       service
+        WHERE       service_id IN   (
+        SELECT  service_id
+        FROM       room_service
+        WHERE   room_id = #{roomId}
+        )
+    </select>
+    <!--  민지 ===================================================================  -->
+
+    <sql id="sort">
+        <if test="sortType == 1">
+            ORDER BY recommend_score DESC
+        </if>
+        <if test="sortType == 2">
+            ORDER BY starPoint DESC
+        </if>
+        <if test="sortType == 3">
+            ORDER BY reviewCount DESC
+        </if>
+<!--        <if test="sortType == 4">-->
+<!--            ORDER BY price-->
+<!--        </if>-->
+<!--        <if test="sortType == 5">-->
+<!--            ORDER BY price DESC-->
+<!--        </if>-->
+    </sql>
+
+    <!--  필터, 날짜, 인원수  -->
+    <select id="searchGlamping1">
+        SELECT A.room_id
+        FROM room A
+        JOIN room_service B
+        ON A.room_id = B.room_id
+        LEFT JOIN (
+        SELECT room_id
+        FROM reservation_before
+        WHERE (#{outDate} >  check_in_date
+        AND check_out_date > #{inDate} )
+        ) C
+        ON A.room_id = C.room_id
+        <if test="filterSize != 0">
+            JOIN (
+            SELECT A.glamp_id
+            FROM room A
+            JOIN room_service B ON A.room_id = B.room_id
+            WHERE B.service_id IN
+            <foreach item="filterId" collection="filter" open="(" separator="," close=")">
+                #{filterId}
+            </foreach>
+            GROUP BY A.glamp_id
+            HAVING COUNT(DISTINCT B.service_id) = #{filterSize}
+            ) D
+            ON A.glamp_id = D.glamp_id
+        </if>
+<!--        <where>-->
+        WHERE C.room_id IS NULL
+            AND (#{people} >= A.room_num_people  AND A.room_max_people >= #{people})
+
+<!--            <if test="filterSize != 0">-->
+<!--                AND B.service_id IN-->
+<!--                <foreach item="filterId" collection="filter" open="(" separator="," close=")">-->
+<!--                    #{filterId}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--        </where>-->
+        GROUP BY A.glamp_id
+<!--        ORDER BY A.room_price-->
+    </select>
+    <!--  지역 분류, 검색어, 정렬  -->
+    <select id="searchGlamping2">
+        SELECT A.glamp_id AS glampId
+        , A.glamp_name AS glampName
+        , A.glamp_image AS glampPic
+        , A.star_point_avg AS starPoint
+        , A.review_count AS reviewCount
+<!--        , B.room_price AS price-->
+        FROM glamping A
+        JOIN room B
+        ON A.glamp_id = B.glamp_id
+        <where>
+            A.activate_status = 1
+            AND B.room_id IN
+            <foreach collection="roomList" item="roomId" open="(" separator="," close=")">
+                #{roomId}
+            </foreach>
+            <if test="region != 'all'">
+                AND A.region = #{region}
+            </if>
+            <if test="searchWord != null and searchWord != ''">
+                AND (A.glamp_name like '%${searchWord}%' OR A.traffic like '%${searchWord}%')
+            </if>
+        </where>
+        <include refid="sort"/>
+        LIMIT #{startIdx}, #{size}
+    </select>
+    <!--  검색 결과 수  -->
+    <select id="searchCount">
+        SELECT COUNT(A.glamp_id)
+        FROM glamping A
+        JOIN room B
+        ON A.glamp_id = B.glamp_id
+        <where>
+            A.activate_status = 1
+            AND B.room_id IN
+            <foreach collection="roomList" item="roomId" open="(" separator="," close=")">
+                #{roomId}
+            </foreach>
+            <if test="region != 'all'">
+                AND A.region = #{region}
+            </if>
+            <if test="searchWord != null and searchWord != ''">
+                AND (A.glamp_name like '%${searchWord}%' OR A.traffic like '%${searchWord}%')
+            </if>
+        </where>
+    </select>
+
+</mapper>
